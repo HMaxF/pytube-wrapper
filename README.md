@@ -1,16 +1,15 @@
-# What is pytube-wrapper
-A wrapper to use pytube from https://github.com/pytube/pytube to download YouTube video.
-
+# What is youtube_backup
+A simple tool that use pytube (https://github.com/pytube/pytube) to make backup of self-own video that has been uploaded to YouTube.
 
 # Problem to solve
 pytube is easy to use, but running pytube directly from command line like:
 ```
 $ pytube https://youtube.com/watch?v=2lAe1cqCOXo
 ```
-Only able to download an 720p video, this is resolution is the highest downloadable video with audio.
+Only able to download an 720p video, 720p is the highest resolution downloadable video with audio.
 
 # Solution
-Using a simple python code to download a YouTube video using the highest possible video and audio.
+Using this simple python code to download (for backup) self-own video using the highest possible quality.
 
 # Requirement
 1. Python v3.x (https://www.python.org/)
@@ -20,7 +19,7 @@ Using a simple python code to download a YouTube video using the highest possibl
 # How to use
 Using command line (CLI)
 ```
-$ python3 pytube-wrapper.py https://youtube.com/watch?v=2lAe1cqCOXo
+$ python3 youtube_backup.py https://youtube.com/watch?v=2lAe1cqCOXo
 ```
 
 # Limitation
@@ -28,7 +27,4 @@ $ python3 pytube-wrapper.py https://youtube.com/watch?v=2lAe1cqCOXo
 2. Downloaded filename will only use .mp4 extension
 
 # Warning
-Because will use highest possible video quality, therefore the output file size will be large.  
-
-
-To download 2160p (4K) video, the file size may be more than 1 GB
+Because will use highest possible video quality, therefore the output file size will be ver large, downloaded file size can easily be more than 1GB for a 2160p (4K) video.
