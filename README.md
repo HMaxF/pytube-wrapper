@@ -2,7 +2,7 @@
 A wrapper to use pytube from https://github.com/pytube/pytube to download YouTube video.
 
 
-# Problem
+# The problem to solve
 Running pytube directly from command line like:
 ```
 $ pytube https://youtube.com/watch?v=2lAe1cqCOXo

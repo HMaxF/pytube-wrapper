@@ -112,7 +112,7 @@ def downloadYouTube(ytURL = None):
     # <Stream: itag="251" mime_type="audio/webm" abr="160kbps" acodec="opus" progressive="False" type="audio">
 
     # select HIGHEST video resolution
-    testingDownloadOnly1080p = True
+    testingDownloadOnly1080p = False
     if testingDownloadOnly1080p:
         # for testing, just using 1080p (smaller than 2160p)
         streamHighestVideo = yt.streams.filter(type="video", resolution="1080p")[0]
