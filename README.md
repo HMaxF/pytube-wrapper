@@ -4,7 +4,7 @@ A simple tool that use pytube (https://github.com/pytube/pytube) to make backup 
 # Problem to solve
 pytube is easy to use, but running pytube directly from command line like:
 ```
-$ pytube https://youtube.com/watch?v=2lAe1cqCOXo
+pytube https://youtube.com/watch?v=2lAe1cqCOXo
 ```
 Only able to download an 720p video, 720p is the highest resolution downloadable video with audio.
 
@@ -19,7 +19,7 @@ Using this simple python code to download (for backup) self-own video using the 
 # How to use
 Using command line (CLI)
 ```
-$ python3 youtube_backup.py https://youtube.com/watch?v=2lAe1cqCOXo
+python3 youtube_backup.py https://youtube.com/watch?v=2lAe1cqCOXo
 ```
 
 # Limitation
