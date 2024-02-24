@@ -7,14 +7,8 @@ $ python -m pip install pytube
 # example direct download
 $ pytube https://youtube.com/watch?v=2lAe1cqCOXo
 
-# download ffmpeg for merging video and audio
-reference: https://www.ffmpeg.org/download.html#build-mac
-
-# if use brew
-$ brew update
-$ brew upgrade
-$ brew install ffmpeg
-
+# require ffmpeg for merging video and audio
+reference: https://ffmpeg.org/
 
 Implement simple code to get highest quality VIDEO and AUDIO
 """
