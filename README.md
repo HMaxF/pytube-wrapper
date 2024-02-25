@@ -1,5 +1,5 @@
 # What is youtube_backup
-A simple tool that use pytube (https://github.com/pytube/pytube) to make backup of self-own video that has been uploaded to YouTube as Public (every can search and see) or Unlisted (not searchable but only people with the link can see it)
+A simple tool that use pytube (https://github.com/pytube/pytube) to make backup of self-own video that has been uploaded to YouTube as Public (every one can search and see) or Unlisted (not searchable but only people with the link can see it)
 
 # Problem to solve
 pytube is easy to use, but running pytube directly from command line like:
