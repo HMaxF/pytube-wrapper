@@ -122,7 +122,7 @@ def downloadYouTube(ytURL = None, useAuthentication = False):
     # then download the video
     fileVideo = downloadStream(streamHighestVideo)
     
-    outputFilename = save_filename(f"{yt.title}.mp4")
+    outputFilename = generate_safe_filename(f"{yt.title}.mp4")
     result = mergeVideoAudio(fileVideo, fileAudio, outputFilename)
     if result is None or result == 0:
         # delete temporary files
@@ -184,11 +184,10 @@ def downloadStream(stream):
 
 def generateFilenameFromStream(stream):
     filename = f"{stream.title}.{stream.itag}.{stream.mime_type.replace('/', '-')}.temp"
-    filename = save_filename(filename)
+    filename = generate_safe_filename(filename)
     return filename
 
-def save_filename(txt):
-    # Clean it in one fell swoop.
+def generate_safe_filename(txt):
     clean = re.sub(r"[/\\?%*:|\"<>]", "", txt)
     return clean
 
