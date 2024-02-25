@@ -20,6 +20,7 @@ import sys # to get arguments (parameter) manually
 
 import subprocess # to run ffmpeg
 import os # delete file os.remove()
+import re # regrex
 
 def on_progress_callback(stream, data, remainingByte):
     # print(f"Downloaded: {stream.filesize} bytes, remaining: {remainingByte} bytes")
@@ -31,16 +32,17 @@ def on_complete_callback(stream, filePath):
     print(f"Download complete: {filePath}")
 
 
-def downloadYouTube(ytURL = None):
+def downloadYouTube(ytURL = None, useAuthentication = False):
 
     if ytURL is None:
         return
     
+    # NOTE: using use_oauth=True will need user to login !!
     yt = YouTube(ytURL,
             on_progress_callback=on_progress_callback,
             on_complete_callback=on_complete_callback,
-            use_oauth=True,
-            allow_oauth_cache=True
+            use_oauth=useAuthentication,
+            allow_oauth_cache=useAuthentication
     )
 
     if yt is None:
@@ -99,7 +101,7 @@ def downloadYouTube(ytURL = None):
 
     # select HIGHEST audio resolution
     audioStreams = yt.streams.filter(type="audio").order_by('abr').desc()
-    streamHighestAudio = yt.streams.get_by_itag(audioStreams[0].itag)
+    streamHighestAudio = audioStreams[0]
     # <Stream: itag="251" mime_type="audio/webm" abr="160kbps" acodec="opus" progressive="False" type="audio">
 
     # select HIGHEST video resolution
@@ -109,7 +111,7 @@ def downloadYouTube(ytURL = None):
         streamHighestVideo = yt.streams.filter(type="video", resolution="1080p")[0]
     else:
         videoStreams = yt.streams.filter(type="video").order_by('resolution').desc()
-        streamHighestVideo = yt.streams.get_by_itag(videoStreams[0].itag)
+        streamHighestVideo = videoStreams[0] #yt.streams.get_by_itag(videoStreams[0].itag)
         # <Stream: itag="337" mime_type="video/webm" res="2160p" fps="60fps" vcodec="vp9.2" progressive="False" type="video">
 
     # download both audio and video
@@ -120,7 +122,7 @@ def downloadYouTube(ytURL = None):
     # then download the video
     fileVideo = downloadStream(streamHighestVideo)
     
-    outputFilename = f"{yt.title}.mp4"
+    outputFilename = save_filename(f"{yt.title}.mp4")
     result = mergeVideoAudio(fileVideo, fileAudio, outputFilename)
     if result is None or result == 0:
         # delete temporary files
@@ -139,7 +141,9 @@ def mergeVideoAudio(fileVideo, fileAudio, outputFilename = None):
         outputFilename = f"{fileVideo}.mp4"
 
     # merge using ffmpeg, note: use double-quote for filename (because it may contains space)
-    cmd = f'ffmpeg -i "{fileVideo}" -i "{fileAudio}" -c:v copy -map 0:v -map 1:a -y "{outputFilename}"'
+    # first file (0:v) provide the video, second file (1:a) provide the audio
+    cmd = f'ffmpeg -nostats -loglevel 0 -i "{fileVideo}" -i "{fileAudio}" -c:v copy -map 0:v -map 1:a -y "{outputFilename}"'
+
     print(f"Going to run command: {cmd}")
 
     return_value = subprocess.call(cmd, shell=True)
@@ -180,15 +184,21 @@ def downloadStream(stream):
 
 def generateFilenameFromStream(stream):
     filename = f"{stream.title}.{stream.itag}.{stream.mime_type.replace('/', '-')}.temp"
+    filename = save_filename(filename)
     return filename
+
+def save_filename(txt):
+    # Clean it in one fell swoop.
+    clean = re.sub(r"[/\\?%*:|\"<>]", "", txt)
+    return clean
 
 if __name__ == "__main__":
 
     if len(sys.argv) == 2:
         outputFilename = downloadYouTube(sys.argv[1])
         if outputFilename is None:
-            print(f"*** Download succeded, video saved: {outputFilename} ***")
-        else:
             print(f"*** Download failed ***")
+        else:
+            print(f"*** Download succeded, video saved: {outputFilename} ***")            
     else:
         print(f"Missing YouTube video url, ie: 'youtube.com/dummyabc'")
