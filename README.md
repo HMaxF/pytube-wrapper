@@ -22,6 +22,11 @@ Using command line (CLI)
 python3 youtube_backup.py https://youtube.com/watch?v=2lAe1cqCOXo
 ```
 
+NOTE: If you received error message: "zsh: no matches found" then use single quote (') to espace all characters, eg:
+```
+python3 youtube_backup.py 'https://youtube.com/watch?v=2lAe1cqCOXo'
+```
+
 # Limitation
 1. Only download to the current directory.
 2. Downloaded filename will only use .mp4 extension
