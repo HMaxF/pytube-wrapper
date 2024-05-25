@@ -231,6 +231,12 @@ def show_usage():
     print(f"   * Download audio only.")
     print(f"")
 
+def isValidYoutubeUrl(url):
+    if url.startswith("https://www.youtube.com/") or url.startswith("https://youtube.com/") or url.startswith("https://youtu.be/") or url.startswith("https://m.youtube.com/"):
+        return True
+
+    return False
+
 if __name__ == "__main__":
 
     total_arg = len(sys.argv)
@@ -245,7 +251,7 @@ if __name__ == "__main__":
 
     # check 1st parameter
     first_arg = sys.argv[1]
-    if first_arg.startswith("https://www.you") or first_arg.startswith("https://you"):
+    if isValidYoutubeUrl(first_arg):
         youtube_url = first_arg
     elif first_arg.startswith("-a"):
         audioOnly = True 
@@ -260,7 +266,7 @@ if __name__ == "__main__":
         second_arg = sys.argv[2]
 
         if youtube_url is None:            
-            if second_arg.startswith("https://www.you") or second_arg.startswith("https://you"):
+            if isValidYoutubeUrl(second_arg):
                 youtube_url = second_arg
             else:
                 show_usage()
