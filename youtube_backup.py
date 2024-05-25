@@ -32,7 +32,8 @@ def on_complete_callback(stream, filePath):
     print(f"Download complete: {filePath}")
 
 
-def downloadYouTube(ytURL = None, useAuthentication = False):
+def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthentication = False):
+    print(f"downloadYouTube({ytURL=}, {audioOnly=}, {videoOnly=}, {useAuthentication=})")
 
     if ytURL is None:
         return
@@ -98,12 +99,11 @@ def downloadYouTube(ytURL = None, useAuthentication = False):
     # b. Normally only 720p or lower resolution has both Audio and Video in 1 stream !
     # c. see list of stream's tag (code): https://gist.github.com/AgentOak/34d47c65b1d28829bb17c24c04a0096f
 
-
     # select HIGHEST audio resolution
     audioStreams = yt.streams.filter(type="audio").order_by('abr').desc()
     streamHighestAudio = audioStreams[0]
     # <Stream: itag="251" mime_type="audio/webm" abr="160kbps" acodec="opus" progressive="False" type="audio">
-
+    
     # select HIGHEST video resolution
     testingDownloadOnly1080p = False
     if testingDownloadOnly1080p:
@@ -114,15 +114,37 @@ def downloadYouTube(ytURL = None, useAuthentication = False):
         streamHighestVideo = videoStreams[0] #yt.streams.get_by_itag(videoStreams[0].itag)
         # <Stream: itag="337" mime_type="video/webm" res="2160p" fps="60fps" vcodec="vp9.2" progressive="False" type="video">
 
-    # download both audio and video
-
-    # first download audio because it is smaller and shorter time to download
-    fileAudio = downloadStream(streamHighestAudio)
-
-    # then download the video
-    fileVideo = downloadStream(streamHighestVideo)
     
+    # download both audio and video
+    if audioOnly is True or videoOnly is False:
+        # either audioOnly or both
+
+        # first download audio because it is smaller and shorter time to download
+        fileAudio = downloadStream(streamHighestAudio)
+
+        if audioOnly is True:
+            # rename the file
+            audioOnlyFilename = f"{yt.title}.m4a" # m4a is Audio only
+            os.rename(fileAudio, audioOnlyFilename)
+            return audioOnlyFilename
+
+    if audioOnly is False or videoOnly is True:
+        # either videoOnly or both
+
+        # then download the video
+        fileVideo = downloadStream(streamHighestVideo)
+
+        if videoOnly is True:
+            # rename the file
+            videoOnlyFilename = f"{yt.title}.mp4"
+            os.rename(fileVideo, videoOnlyFilename)
+            return videoOnlyFilename
+
+    # at this point it means BOTH audio and video files are downloaded
+
+    # merge video and audio    
     outputFilename = generate_safe_filename(f"{yt.title}.mp4")
+
     result = mergeVideoAudio(fileVideo, fileAudio, outputFilename)
     if result is None or result == 0:
         # delete temporary files
@@ -130,9 +152,9 @@ def downloadYouTube(ytURL = None, useAuthentication = False):
         os.remove(fileVideo)
 
         return outputFilename
-    else:
-        return None
-
+        
+    # at this point, it means error !!
+    return None
 
 def mergeVideoAudio(fileVideo, fileAudio, outputFilename = None):
     print(f"Going to merge '{fileVideo = }' and '{fileAudio = }'")
@@ -191,13 +213,65 @@ def generate_safe_filename(txt):
     clean = re.sub(r"[/\\?%*:|\"<>]", "", txt)
     return clean
 
+# https://www.youtube.com/watch?v=libKVRa01L8 == Solar System 101 | National Geographic
+def show_usage():
+    print(f"Download own YouTube video for backup")
+    print(f"positional arguments:")
+    print(f"   1st argument is the Youtube url, eg:")
+    print(f"      https://www.youtube.com/watch?v=libKVRa01L8")
+    print(f"   2nd argument is optional (default is download both audio and video).")
+    print(f"      -a   Download audio only.")
+    print(f"      -v   Download video only.")
+    
+    print(f"\n\nExample:")    
+    print(f"   youtube_backup.py https://www.youtube.com/watch?v=libKVRa01L8")
+    print(f"   * Download both audio and video.")    
+    print(f"")
+    print(f"   youtube_backup.py https://www.youtube.com/watch?v=libKVRa01L8 -a")
+    print(f"   * Download audio only.")
+    print(f"")
+
 if __name__ == "__main__":
 
-    if len(sys.argv) == 2:
-        outputFilename = downloadYouTube(sys.argv[1])
-        if outputFilename is None:
-            print(f"*** Download failed ***")
-        else:
-            print(f"*** Download succeded, video saved: {outputFilename} ***")            
+    total_arg = len(sys.argv)
+
+    youtube_url = None
+    audioOnly = False
+    videoOnly = False
+
+    if total_arg < 1:
+        show_usage()
+        exit(-1)
+
+    # check 1st parameter
+    first_arg = sys.argv[1]
+    if first_arg.startswith("https://www.you") or first_arg.startswith("https://you"):
+        youtube_url = first_arg
+    elif first_arg.startswith("-a"):
+        audioOnly = True 
+    elif first_arg.startswith("-v"):
+        videoOnly = True
     else:
-        print(f"Missing YouTube video url, ie: 'youtube.com/dummyabc'")
+        # unknown parameter
+        show_usage()
+        exit(-2)
+        
+    if total_arg == 3:
+        second_arg = sys.argv[2]
+
+        if youtube_url is None:            
+            if second_arg.startswith("https://www.you") or second_arg.startswith("https://you"):
+                youtube_url = second_arg
+            else:
+                show_usage()
+                exit(-2)
+        elif second_arg.startswith("-a"):
+            audioOnly = True 
+        elif second_arg.startswith("-v"):
+            videoOnly = True
+
+    outputFilename = downloadYouTube(youtube_url, audioOnly=audioOnly, videoOnly=videoOnly)
+    if outputFilename is None:
+        print(f"*** Download failed ***")
+    else:
+        print(f"*** Download succeded, file saved: {outputFilename} ***")
