@@ -13,8 +13,9 @@ Using this simple python code to download (for backup) self-own video using the 
 
 # Requirement
 1. Python v3.x (https://www.python.org/)
-2. Pytube v15.0 (https://github.com/pytube/pytube)
-3. FFMPEG v6.0 (https://ffmpeg.org/)
+2. ~~Pytube v15.0 (https://github.com/pytube/pytube)~~
+  - [2024-08-23] replaced with `pytubefix v6.8.1`
+4. FFMPEG v6.0 (https://ffmpeg.org/)
 
 # How to use
 Using command line (CLI)
