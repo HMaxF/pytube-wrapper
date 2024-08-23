@@ -105,7 +105,7 @@ def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthe
     # <Stream: itag="251" mime_type="audio/webm" abr="160kbps" acodec="opus" progressive="False" type="audio">
     
     # select HIGHEST video resolution
-    testingDownloadOnly1080p = False
+    testingDownloadOnly1080p = True
     if testingDownloadOnly1080p:
         # for testing, just using 1080p (smaller than 2160p)
         streamHighestVideo = yt.streams.filter(type="video", resolution="1080p")[0]
@@ -183,7 +183,7 @@ def downloadStream(stream):
 
     codec = stream.codecs[0]
     match codec:
-        case s if s.startswith('vp9'):
+        case s if s.startswith('vp9') or s.startswith('avc1'):
             # video
             filename = generateFilenameFromStream(stream)
         case s if s.startswith('mp4'):
@@ -245,12 +245,16 @@ if __name__ == "__main__":
     audioOnly = False
     videoOnly = False
 
-    if total_arg < 1:
+    if total_arg < 2:
         show_usage()
         exit(-1)
 
     # check 1st parameter
-    first_arg = sys.argv[1]
+    if youtube_url:
+        first_arg = youtube_url
+    else:
+        first_arg = sys.argv[1]
+
     if isValidYoutubeUrl(first_arg):
         youtube_url = first_arg
     elif first_arg.startswith("-a"):
