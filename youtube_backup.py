@@ -14,7 +14,7 @@ This code snippet is provided as-is, there is no guarantee,
 creator is not to be held responsible for any kind of damage.
 """
 
-from pytube import YouTube
+from pytubefix import YouTube
 
 import sys # to get arguments (parameter) manually
 
@@ -32,7 +32,7 @@ def on_complete_callback(stream, filePath):
     print(f"Download complete: {filePath}")
 
 
-def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthentication = False):
+def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthentication = True):
     print(f"downloadYouTube({ytURL=}, {audioOnly=}, {videoOnly=}, {useAuthentication=})")
 
     if ytURL is None:
@@ -164,7 +164,7 @@ def mergeVideoAudio(fileVideo, fileAudio, outputFilename = None):
 
     # merge using ffmpeg, note: use double-quote for filename (because it may contains space)
     # first file (0:v) provide the video, second file (1:a) provide the audio
-    cmd = f'ffmpeg -nostats -loglevel 0 -i "{fileVideo}" -i "{fileAudio}" -c:v copy -map 0:v -map 1:a -y "{outputFilename}"'
+    cmd = f'ffmpeg -nostats -loglevel 0 -i "{fileVideo}" -i "{fileAudio}" -c:v copy -c:a copy -map 0:v -map 1:a -y "{outputFilename}"'
 
     print(f"Going to run command: {cmd}")
 
