@@ -6,12 +6,18 @@ This code to make a backup of self-own video that has been uploaded to Youtube.
 
 REQUIREMENTS:
 1. Python v3.x (https://www.python.org/)
-2. Pytube v15.0 (https://github.com/pytube/pytube)
+2. PyTubeFix v8.0 (https://github.com/JuanBindez/pytubefix) - $ pip install -U pytubefix
 3. FFMPEG v6.0 (https://ffmpeg.org/)
+
+
+2024-10-20:
+- Add 'videoId' as prefix of output filename
+
 
 DISCLAIMER:
 This code snippet is provided as-is, there is no guarantee,
 creator is not to be held responsible for any kind of damage.
+
 """
 
 from pytubefix import YouTube
@@ -30,7 +36,6 @@ def on_progress_callback(stream, data, remainingByte):
 
 def on_complete_callback(stream, filePath):
     print(f"Download complete: {filePath}")
-
 
 def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthentication = True):
     print(f"downloadYouTube({ytURL=}, {audioOnly=}, {videoOnly=}, {useAuthentication=})")
@@ -105,15 +110,24 @@ def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthe
     # <Stream: itag="251" mime_type="audio/webm" abr="160kbps" acodec="opus" progressive="False" type="audio">
     
     # select HIGHEST video resolution
-    testingDownloadOnly1080p = True
-    if testingDownloadOnly1080p:
+    only_download_1080p_or_lower = True
+    if only_download_1080p_or_lower:
         # for testing, just using 1080p (smaller than 2160p)
-        streamHighestVideo = yt.streams.filter(type="video", resolution="1080p")[0]
+        streamHighestVideo = yt.streams.filter(type="video", resolution="1080p", mime_type="video/mp4") # avoid mime_type=video/webm
+        if streamHighestVideo is None or len(streamHighestVideo) == 0:
+            # no 1080p, so get the highest quality, maybe 720p or 480p or 360p
+            streamHighestVideo = yt.streams.filter(type="video").order_by('resolution').desc()[0]
+        elif len(streamHighestVideo) > 1:
+            # multiple found, so get the first one
+            streamHighestVideo = streamHighestVideo[0]
     else:
+        # download the highest possible quality, maybe 4K or 1440p
         videoStreams = yt.streams.filter(type="video").order_by('resolution').desc()
         streamHighestVideo = videoStreams[0] #yt.streams.get_by_itag(videoStreams[0].itag)
         # <Stream: itag="337" mime_type="video/webm" res="2160p" fps="60fps" vcodec="vp9.2" progressive="False" type="video">
 
+
+    filename = generate_safe_filename(f"{yt.video_id} - {yt.title}")
     
     # download both audio and video
     if audioOnly is True or videoOnly is False:
@@ -124,7 +138,7 @@ def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthe
 
         if audioOnly is True:
             # rename the file
-            audioOnlyFilename = f"{yt.title}.m4a" # m4a is Audio only
+            audioOnlyFilename = filename + ".m4a" # m4a is Audio only
             os.rename(fileAudio, audioOnlyFilename)
             return audioOnlyFilename
 
@@ -136,14 +150,14 @@ def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthe
 
         if videoOnly is True:
             # rename the file
-            videoOnlyFilename = f"{yt.title}.mp4"
+            videoOnlyFilename = filename + ".mp4"
             os.rename(fileVideo, videoOnlyFilename)
             return videoOnlyFilename
 
     # at this point it means BOTH audio and video files are downloaded
 
     # merge video and audio    
-    outputFilename = generate_safe_filename(f"{yt.title}.mp4")
+    outputFilename = generate_safe_filename(filename + ".mp4")
 
     result = mergeVideoAudio(fileVideo, fileAudio, outputFilename)
     if result is None or result == 0:
@@ -244,7 +258,7 @@ if __name__ == "__main__":
     youtube_url = None
     audioOnly = False
     videoOnly = False
-
+    
     if total_arg < 2:
         show_usage()
         exit(-1)
