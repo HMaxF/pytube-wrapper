@@ -113,12 +113,12 @@ def downloadYouTube(ytURL = None, audioOnly = False, videoOnly = False, useAuthe
     only_download_1080p_or_lower = True
     if only_download_1080p_or_lower:
         # for testing, just using 1080p (smaller than 2160p)
-        streamHighestVideo = yt.streams.filter(type="video", resolution="1080p", mime_type="video/mp4") # avoid mime_type=video/webm
+        # vp9 filesize is smaller than 'avc1.xxxx'
+        streamHighestVideo = yt.streams.filter(type="video", resolution="1080p", video_codec='vp9') 
         if streamHighestVideo is None or len(streamHighestVideo) == 0:
             # no 1080p, so get the highest quality, maybe 720p or 480p or 360p
             streamHighestVideo = yt.streams.filter(type="video").order_by('resolution').desc()[0]
-        elif len(streamHighestVideo) > 1:
-            # multiple found, so get the first one
+        else:
             streamHighestVideo = streamHighestVideo[0]
     else:
         # download the highest possible quality, maybe 4K or 1440p
@@ -259,9 +259,13 @@ if __name__ == "__main__":
     audioOnly = False
     videoOnly = False
     
-    if total_arg < 2:
-        show_usage()
-        exit(-1)
+    testing = False
+    if testing:
+        youtube_url = 'https://www.youtube.com/watch?v=libKVRa01L8'
+    else:
+        if total_arg < 2:
+            show_usage()
+            exit(-1)
 
     # check 1st parameter
     if youtube_url:
