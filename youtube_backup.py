@@ -197,9 +197,9 @@ def downloadStream(stream):
 
     codec = stream.codecs[0]
     match codec:
-        case s if s.startswith('vp9') or s.startswith('avc1'):
+        case s if s.startswith('vp9') or s.startswith('avc1') or s.startswith('av01'):
             # video
-            filename = generateFilenameFromStream(stream)
+            filename = generateFilenameFromStream(stream)        
         case s if s.startswith('mp4'):
             # could be VIDEO or AUDIO
             filename = generateFilenameFromStream(stream)
